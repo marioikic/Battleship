@@ -16,6 +16,7 @@ public class Main {
     private char[][] computerHiddenGrid = new char[GRID_SIZE][GRID_SIZE];
     private Scanner scanner = new Scanner(System.in);
 
+    //kommentar
     public static void main(String[] args) {
         Main game = new Main();
         game.initializeGrids();
