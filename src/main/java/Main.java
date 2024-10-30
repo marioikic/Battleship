@@ -10,7 +10,7 @@ public class Main {
     private static final String[] SHIPS = {"Admiral Arnold", "Don Mario", "King Stefan", "Prince Lukas", "The RaZer"};
     private static final int[] SHIP_SIZES = {5, 4, 3, 3, 2};
 
-
+//123
     private char[][] playerGrid = new char[GRID_SIZE][GRID_SIZE];
     private char[][] computerGrid = new char[GRID_SIZE][GRID_SIZE];
     private char[][] computerHiddenGrid = new char[GRID_SIZE][GRID_SIZE];
