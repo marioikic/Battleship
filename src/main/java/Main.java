@@ -1,204 +1,140 @@
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
-    private static final int GRID_SIZE = 10;
-    private static final char WATER = '~';
-    private static final char HIT = 'X';
-    private static final char MISS = 'O';
-    private static final char SHIP = 'S';
-    private static final String[] SHIPS = {"Admiral Arnold", "Don Mario", "King Stefan", "Prince Lukas", "The RaZer"};
-    private static final int[] SHIP_SIZES = {5, 4, 3, 3, 2};
-
-//123
-    private char[][] playerGrid = new char[GRID_SIZE][GRID_SIZE];
-    private char[][] computerGrid = new char[GRID_SIZE][GRID_SIZE];
-    private char[][] computerHiddenGrid = new char[GRID_SIZE][GRID_SIZE];
-    private Scanner scanner = new Scanner(System.in);
-
-    //kommentar
     public static void main(String[] args) {
-        Main game = new Main();
-        game.initializeGrids();
-        System.out.println("Spielfeld zur Orientierung:");
-        game.printGrid(game.playerGrid, false); // Anzeige des leeren Spielfelds
-        game.manualPlaceShips(game.playerGrid);
-        game.placeShips(game.computerGrid);
-        game.runGame();
+        Spieler spieler = new Spieler("Spieler");
+        Spieler computer = new Spieler("Computer");
+
+
+        spieler.benutzerPlatziertSchiffe();
+
+
+        computer.zufaelligePlatzierungDerSchiffe();
+
+
+        System.out.println("Dein Spielfeld:");
+        spieler.zeigeSpielfeld();
+
+        // Zeige das Spielfeld des Computers (zur Kontrolle)
+        System.out.println("\nGegners Spielfeld (verdeckt):");
+        computer.zeigeSpielfeld();
+    }
+}
+
+class Spieler {
+    private String name;
+    private Spielfeld spielfeld;
+
+    public Spieler(String name) {
+        this.name = name;
+        this.spielfeld = new Spielfeld();
     }
 
-    // Initialisiere das Spielfeld
-    private void initializeGrids() {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                playerGrid[i][j] = WATER;
-                computerGrid[i][j] = WATER;
-                computerHiddenGrid[i][j] = WATER;
-            }
-        }
-    }
+    public void benutzerPlatziertSchiffe() {
+        Scanner scanner = new Scanner(System.in);
+        String[] schiffe = {"Admiral Arnold (5 Felder)", "Don Mario (4 Felder)", "King Stefan (3 Felder)",
+                "Prince Lukas (3 Felder)", "The RaZer (2 Felder)"};
+        int[] laengen = {5, 4, 3, 3, 2};
 
-    // Schiffe manuell platzieren
-    private void manualPlaceShips(char[][] grid) {
-        System.out.println("Platzieren Sie Ihre Schiffe.");
-        for (int i = 0; i < SHIPS.length; i++) {
-            boolean placed = false;
-            while (!placed) {
-                System.out.printf("Platzierung für %s (%d Felder). Geben Sie Position und Richtung (z. B. A5 H oder B4 V): ", SHIPS[i], SHIP_SIZES[i]);
-                String input = scanner.nextLine().toUpperCase();
-                int row = input.charAt(0) - 'A';
-                int col = Integer.parseInt(input.substring(1, input.length() - 2)) - 1;
-                char direction = input.charAt(input.length() - 1);
+        System.out.println("Platzieren Sie Ihre Schiffe:");
 
-                if (canPlaceShip(grid, row, col, SHIP_SIZES[i], direction)) {
-                    for (int j = 0; j < SHIP_SIZES[i]; j++) {
-                        if (direction == 'H') {
-                            grid[row][col + j] = SHIP;
-                        } else if (direction == 'V') {
-                            grid[row + j][col] = SHIP;
-                        }
-                    }
-                    placed = true;
-                    System.out.println(SHIPS[i] + " platziert.");
-                    printGrid(grid, false); // Spielfeld nach jeder Platzierung anzeigen
-                } else {
-                    System.out.println("Ungültige Position. Versuchen Sie es erneut.");
+        for (int i = 0; i < schiffe.length; i++) {
+            boolean platziert = false;
+            while (!platziert) {
+                System.out.println("\nAktuelles Spielfeld:");
+                spielfeld.zeige();
+
+                System.out.print("Position für " + schiffe[i] + " (z.B. a5v für vertikal oder b8h für horizontal): ");
+                String eingabe = scanner.nextLine().toUpperCase();
+                if (eingabe.length() < 3 || (eingabe.length() == 4 && !Character.isDigit(eingabe.charAt(2)))) {
+                    System.out.println("Ungültiges Format. Bitte erneut versuchen.");
+                    continue;
+                }
+
+                char zeile = eingabe.charAt(0);
+                int spalte = Integer.parseInt(eingabe.substring(1, eingabe.length() - 1)) - 1;
+                char richtung = eingabe.charAt(eingabe.length() - 1);
+
+                if (richtung != 'H' && richtung != 'V') {
+                    System.out.println("Ungültige Richtung. Bitte H (horizontal) oder V (vertikal) verwenden.");
+                    continue;
+                }
+
+                platziert = spielfeld.platziereSchiffBenutzer(zeile, spalte, laengen[i], richtung);
+                if (!platziert) {
+                    System.out.println("Ungültige Platzierung. Bitte erneut versuchen.");
                 }
             }
         }
     }
 
-    // Überprüfe, ob das Schiff platziert werden kann
-    private boolean canPlaceShip(char[][] grid, int row, int col, int size, char direction) {
-        if (direction == 'H') {
-            if (col + size > GRID_SIZE) return false;
-            for (int j = 0; j < size; j++) {
-                if (grid[row][col + j] == SHIP) return false;
+    public void zufaelligePlatzierungDerSchiffe() {
+        int[] laengen = {5, 4, 3, 3, 2};
+
+        for (int i = 0; i < laengen.length; i++) {
+            boolean platziert = false;
+            while (!platziert) {
+                char zeile = (char) ('A' + (int) (Math.random() * 10));
+                int spalte = (int) (Math.random() * 10);
+                char richtung = Math.random() < 0.5 ? 'H' : 'V';
+
+                platziert = spielfeld.platziereSchiffBenutzer(zeile, spalte, laengen[i], richtung);
             }
-        } else if (direction == 'V') {
-            if (row + size > GRID_SIZE) return false;
-            for (int j = 0; j < size; j++) {
-                if (grid[row + j][col] == SHIP) return false;
+        }
+    }
+
+    public void zeigeSpielfeld() {
+        spielfeld.zeige();
+    }
+}
+
+class Spielfeld {
+    private char[][] feld;
+    private static final int GROESSE = 10;
+
+    public Spielfeld() {
+        feld = new char[GROESSE][GROESSE];
+        for (int i = 0; i < GROESSE; i++) {
+            for (int j = 0; j < GROESSE; j++) {
+                feld[i][j] = '~';
+            }
+        }
+    }
+
+    public boolean platziereSchiffBenutzer(char zeile, int spalte, int laenge, char richtung) {
+        int x = zeile - 'A';
+        if (x < 0 || x >= GROESSE || spalte < 0 || spalte >= GROESSE) {
+            return false;
+        }
+
+        if (richtung == 'H') {
+            if (spalte + laenge > GROESSE) return false;
+            for (int i = 0; i < laenge; i++) {
+                if (feld[x][spalte + i] != '~') return false;
+            }
+            for (int i = 0; i < laenge; i++) {
+                feld[x][spalte + i] = 'S';
+            }
+        } else {
+            if (x + laenge > GROESSE) return false;
+            for (int i = 0; i < laenge; i++) {
+                if (feld[x + i][spalte] != '~') return false;
+            }
+            for (int i = 0; i < laenge; i++) {
+                feld[x + i][spalte] = 'S';
             }
         }
         return true;
     }
 
-    // Schiffe automatisch auf dem Computer-Spielfeld platzieren
-    private void placeShips(char[][] grid) {
-        Random random = new Random();
-        for (int i = 0; i < SHIPS.length; i++) {
-            boolean placed = false;
-            while (!placed) {
-                int row = random.nextInt(GRID_SIZE);
-                int col = random.nextInt(GRID_SIZE);
-                char direction = random.nextBoolean() ? 'H' : 'V';
-
-                // Überprüfen, ob das Schiff an der zufälligen Position platziert werden kann
-                if (canPlaceShip(grid, row, col, SHIP_SIZES[i], direction)) {
-                    for (int j = 0; j < SHIP_SIZES[i]; j++) {
-                        if (direction == 'H') {
-                            grid[row][col + j] = SHIP;
-                        } else if (direction == 'V') {
-                            grid[row + j][col] = SHIP;
-                        }
-                    }
-                    placed = true;
-                    System.out.println(SHIPS[i] + " platziert auf Computer-Spielfeld.");
-                }
-            }
-        }
-    }
-
-    // Spielablauf
-    private void runGame() {
-        boolean playerTurn = true;
-        while (true) {
-            System.out.println("Spieler Spielfeld:");
-            printGrid(playerGrid, false);
-            System.out.println("Computer Spielfeld:");
-            printGrid(computerHiddenGrid, true);
-
-            if (playerTurn) {
-                System.out.println("Dein Zug! Gib die Koordinate ein (z.B., A5): ");
-                String input = scanner.nextLine().toUpperCase();
-                int row = input.charAt(0) - 'A';
-                int col = Integer.parseInt(input.substring(1)) - 1;
-                if (takeShot(computerGrid, computerHiddenGrid, row, col)) {
-                    System.out.println("Treffer!");
-                    if (isGameOver(computerGrid)) {
-                        System.out.println("Herzlichen Glückwunsch! Du hast gewonnen!");
-                        break;
-                    }
-                } else {
-                    System.out.println("Fehlschuss.");
-                    playerTurn = false;
-                }
-            } else {
-                System.out.println("Computer ist am Zug.");
-                Random random = new Random();
-                int row, col;
-                do {
-                    row = random.nextInt(GRID_SIZE);
-                    col = random.nextInt(GRID_SIZE);
-                } while (playerGrid[row][col] == HIT || playerGrid[row][col] == MISS);
-                if (takeShot(playerGrid, playerGrid, row, col)) {
-                    System.out.println("Computer hat getroffen!");
-                    if (isGameOver(playerGrid)) {
-                        System.out.println("Der Computer hat gewonnen.");
-                        break;
-                    }
-                } else {
-                    System.out.println("Computer hat verfehlt.");
-                    playerTurn = true;
-                }
-            }
-        }
-    }
-
-    // Schuss abgeben und Rückmeldung geben
-    private boolean takeShot(char[][] targetGrid, char[][] displayGrid, int row, int col) {
-        if (targetGrid[row][col] == SHIP) {
-            targetGrid[row][col] = HIT;
-            displayGrid[row][col] = HIT;
-            return true;
-        } else if (targetGrid[row][col] == WATER) {
-            targetGrid[row][col] = MISS;
-            displayGrid[row][col] = MISS;
-            return false;
-        }
-        return false;
-    }
-
-    // Spielfeld ausgeben
-    private void printGrid(char[][] grid, boolean hideShips) {
-        System.out.print("  ");
-        for (int i = 1; i <= GRID_SIZE; i++) {
-            System.out.print(i + " ");
-        }
-        System.out.println();
-        for (int i = 0; i < GRID_SIZE; i++) {
+    public void zeige() {
+        System.out.println("  1 2 3 4 5 6 7 8 9 10");
+        for (int i = 0; i < GROESSE; i++) {
             System.out.print((char) ('A' + i) + " ");
-            for (int j = 0; j < GRID_SIZE; j++) {
-                if (hideShips && grid[i][j] == SHIP) {
-                    System.out.print(WATER + " ");
-                } else {
-                    System.out.print(grid[i][j] + " ");
-                }
+            for (int j = 0; j < GROESSE; j++) {
+                System.out.print(feld[i][j] + " ");
             }
             System.out.println();
         }
-    }
-
-    // Überprüfen, ob alle Schiffe versenkt sind
-    private boolean isGameOver(char[][] grid) {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                if (grid[i][j] == SHIP) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }
