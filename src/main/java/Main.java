@@ -20,6 +20,7 @@ public class Main {
         computer.zeigeSpielfeld();
     }
 }
+/*Spieler*/
 
 class Spieler {
     private String name;
