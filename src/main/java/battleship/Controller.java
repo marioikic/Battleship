@@ -4,7 +4,6 @@ import battleship.ui.UserInterface;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Controller {
@@ -15,7 +14,7 @@ public class Controller {
     Spieler computer;
 
     // Für intelligentes Zielen
-    private List<int[]> trefferListe = new ArrayList<>();
+    private final List<int[]> trefferListe = new ArrayList<>();
 
     public Controller() {
         spieler = new Spieler("Spieler");
