@@ -137,6 +137,7 @@ void testSchiffPlatzierenUndAnzeigen_Laenge4_Vertikal() {
         assertTrue(actual.contains("~")); // Wasser sollte weiterhin angezeigt werden
     }
 
+    /*neue tests*/
     @Test
     void testComputerSchussAbgabe() {
         // Vorbereitung: Platziere ein Schiff auf dem Spielfeld des Spielers
