@@ -8,8 +8,6 @@ public class Spieler {
 
     private Spielfeld spielfeld;
 
-    //TODO move to ship or Config class
-
     String[] schiffe = {"Admiral Arnold (5 Felder)", "Don Mario (4 Felder)", "King Stefan (3 Felder)",
             "Prince Lukas (3 Felder)", "The RaZer (2 Felder)"};
     int[] laengen = {5, 4, 3, 3, 2};
@@ -57,14 +55,13 @@ public class Spieler {
         for (int j : laengen) {
             boolean platziert = false;
             while (!platziert) {
-                char zeile = (char) (Spielfeld.FIRSTLINE+ (int) (Math.random() * Spielfeld.GROESSE));
+                char zeile = (char) (Spielfeld.FIRSTLINE + (int) (Math.random() * Spielfeld.GROESSE));
                 int spalte = (int) (Math.random() * Spielfeld.GROESSE);
                 char richtung = Math.random() < 0.5 ? Spielfeld.HORIZONTAL : Spielfeld.VERTIKAL;
                 platziert = spielfeld.platziereSchiffBenutzer(zeile, spalte, j, richtung);
             }
         }
     }
-
 
     public Spielfeld getSpielfeld() {
         return spielfeld;
