@@ -137,6 +137,35 @@ void testSchiffPlatzierenUndAnzeigen_Laenge4_Vertikal() {
         assertTrue(actual.contains("~")); // Wasser sollte weiterhin angezeigt werden
     }
 
+    @Test
+    void testComputerSchussAbgabe() {
+        // Vorbereitung: Platziere ein Schiff auf dem Spielfeld des Spielers
+        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Schiff der Länge 3 wird platziert
+
+        // Simulation: Computer gibt einen Schuss ab
+        Boolean ergebnis = spielfeld.schiesse('C', 3); // Computer schießt auf das Schiff
+
+        // Überprüfung: Der Schuss ist ein Treffer
+        assertTrue(ergebnis, "Der Computer sollte einen Treffer landen.");
+        String actual = spielfeld.zeige();
+        assertTrue(actual.contains("X"), "Das Spielfeld sollte einen Treffer ('X') zeigen.");
+    }
+    @Test
+    void testComputerSchiessStrategie() {
+        // Vorbereitung: Platziere ein Schiff und simuliere einen Treffer
+        spielfeld.platziereSchiffBenutzer('E', 4, 2, 'H'); // Schiff der Länge 2 wird platziert
+        spielfeld.schiesse('E', 4); // Computer trifft das erste Segment des Schiffs
+
+        // Simulation: Computer visiert angrenzendes Feld an
+        Boolean ergebnis = spielfeld.schiesse('E', 5); // Computer schießt auf das nächste Segment
+
+        // Überprüfung: Der zweite Schuss ist ein Treffer
+        assertTrue(ergebnis, "Der Computer sollte einen Treffer landen.");
+        String actual = spielfeld.zeige();
+        assertTrue(actual.contains("X"), "Das Spielfeld sollte den Treffer ('X') anzeigen.");
+    }
+
+
 
 
 }
