@@ -24,40 +24,66 @@ public class Spielfeld {
 
     public boolean platziereSchiffBenutzer(char zeile, int spalte, int laenge, char richtung) {
         int x = zeile - FIRSTLINE;
+
+        if (!isWithinBounds(x, spalte, laenge, richtung)) {
+            return false;
+        }
+
+        if (!isPlacementValid(x, spalte, laenge, richtung)) {
+            return false;
+        }
+
+        placeShip(x, spalte, laenge, richtung);
+        return true;
+    }
+
+    private boolean isWithinBounds(int x, int spalte, int laenge, char richtung) {
         if (x < 0 || x >= GROESSE || spalte < 0 || spalte >= GROESSE) {
             return false;
         }
 
         if (richtung == HORIZONTAL) {
-            if (spalte + laenge > GROESSE) return false;
-            for (int i = 0; i < laenge; i++) {
-                if (feld[x][spalte + i] != WASSER) return false;
-            }
-            for (int i = 0; i < laenge; i++) {
-                feld[x][spalte + i] = SCHIFF;
-            }
+            return spalte + laenge <= GROESSE;
         } else {
-            if (x + laenge > GROESSE) return false;
-            for (int i = 0; i < laenge; i++) {
-                if (feld[x + i][spalte] != WASSER) return false;
-            }
-            for (int i = 0; i < laenge; i++) {
-                feld[x + i][spalte] = SCHIFF;
+            return x + laenge <= GROESSE;
+        }
+    }
+
+    private boolean isPlacementValid(int x, int spalte, int laenge, char richtung) {
+        for (int i = 0; i < laenge; i++) {
+            int currentX = richtung == HORIZONTAL ? x : x + i;
+            int currentSpalte = richtung == HORIZONTAL ? spalte + i : spalte;
+
+            if (feld[currentX][currentSpalte] != WASSER) {
+                return false;
             }
         }
         return true;
     }
 
+    private void placeShip(int x, int spalte, int laenge, char richtung) {
+        for (int i = 0; i < laenge; i++) {
+            int currentX = richtung == HORIZONTAL ? x : x + i;
+            int currentSpalte = richtung == HORIZONTAL ? spalte + i : spalte;
+
+            feld[currentX][currentSpalte] = SCHIFF;
+        }
+    }
+
     public Boolean schiesse(char zeile, int spalte) {
         int x = zeile - FIRSTLINE;
+
+        // Überprüfen auf ungültige Koordinaten
         if (x < 0 || x >= GROESSE || spalte < 0 || spalte >= GROESSE) {
-            return null; // Ungültige Koordinaten
+            throw new IllegalArgumentException("Ungültige Koordinaten: (" + zeile + ", " + spalte + ")");
         }
 
+        // Überprüfen auf bereits getroffenes Feld
         if (feld[x][spalte] == TREFFER || feld[x][spalte] == FEHLSCHUSS) {
-            return null; // Bereits getroffen
+            throw new IllegalStateException("Das Feld wurde bereits getroffen: (" + zeile + ", " + spalte + ")");
         }
 
+        // Treffer oder Fehlschuss markieren
         if (feld[x][spalte] == SCHIFF) {
             feld[x][spalte] = TREFFER; // Treffer markieren
             return true;
@@ -66,8 +92,10 @@ public class Spielfeld {
             return false;
         }
 
-        return null; // Fehlerfall (sollte nicht auftreten)
+        // Sollte nie erreicht werden
+        throw new IllegalStateException("Unerwarteter Zustand bei der Schussverarbeitung.");
     }
+
 
 
     public boolean istAllesVersenkt() {

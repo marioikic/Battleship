@@ -4,8 +4,12 @@ import battleship.ui.UserInterface;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Controller {
+
+    private static final Logger logger = Logger.getLogger(Controller.class.getName());
 
     Spieler spieler;
     Spieler computer;
@@ -29,19 +33,19 @@ public class Controller {
 
         while (true) {
             if (!schiessMechanik()) {
-                System.out.println("Spiel wurde abgebrochen. Vielen Dank fürs Spielen!");
+                logger.info("Spiel wurde abgebrochen. Vielen Dank fürs Spielen!");
                 resetGame();
                 break;
             }
 
             // Überprüfen, ob ein Spieler gewonnen hat
             if (computer.getSpielfeld().istAllesVersenkt()) {
-                System.out.println(spieler.getName() + " hat gewonnen!");
+                logger.info(spieler.getName() + " hat gewonnen!");
                 resetGame();
                 break;
             }
             if (spieler.getSpielfeld().istAllesVersenkt()) {
-                System.out.println(computer.getName() + " hat gewonnen!");
+                logger.info(computer.getName() + " hat gewonnen!");
                 resetGame();
                 break;
             }
@@ -53,13 +57,13 @@ public class Controller {
 
         // Spieler schießt
         while (true) {
-            System.out.println("\nDein Spielfeld:");
+            logger.info("\nDein Spielfeld:");
             UserInterface.print(spieler.getSpielfeld().zeige());
 
-            System.out.println("Spielfeld des Computers:");
+            logger.info("Spielfeld des Computers:");
             UserInterface.print(computer.getSpielfeld().zeigeVerdeckt());
 
-            System.out.print("Geben Sie die Koordinaten für Ihren Schuss ein (z. B. A5) oder 'exit' zum Beenden: ");
+            logger.info("Geben Sie die Koordinaten für Ihren Schuss ein (z. B. A5) oder 'exit' zum Beenden: ");
             String eingabe = scanner.nextLine().toUpperCase(); // Konvertiere Eingabe in Großbuchstaben
 
             if (eingabe.equals("EXIT")) {
@@ -67,7 +71,7 @@ public class Controller {
             }
 
             if (!isValidInput(eingabe)) {
-                System.out.println("Ungültige Eingabe. Bitte verwenden Sie das Format 'A5'.");
+                logger.warning("Ungültige Eingabe. Bitte verwenden Sie das Format 'A5'.");
                 continue;
             }
 
@@ -76,12 +80,12 @@ public class Controller {
 
             Boolean treffer = computer.getSpielfeld().schiesse(zeile, spalte);
             if (treffer == null) {
-                System.out.println("Dieses Feld wurde bereits getroffen. Bitte erneut versuchen.");
+                logger.warning("Dieses Feld wurde bereits getroffen. Bitte erneut versuchen.");
             } else if (treffer) {
-                System.out.println("Treffer!");
+                logger.info("Treffer!");
                 break;
             } else {
-                System.out.println("Fehlschuss!");
+                logger.info("Fehlschuss!");
                 break;
             }
         }
@@ -115,7 +119,7 @@ public class Controller {
 
 
     private void computerZug() {
-        System.out.println("\nDer Computer führt seinen Zug aus...");
+        logger.info("\nDer Computer führt seinen Zug aus...");
         boolean schussErfolgreich = false;
 
         // Intelligentes Zielen, wenn Treffer vorhanden
@@ -137,10 +141,10 @@ public class Controller {
                 Boolean treffer = spieler.getSpielfeld().schiesse(zeile, spalte);
                 if (treffer != null) {
                     if (treffer) {
-                        System.out.println("Computer hat getroffen!");
-                        trefferListe.add(new int[] {zeile - Spielfeld.FIRSTLINE, spalte});
+                        logger.info("Computer hat getroffen!");
+                        trefferListe.add(new int[]{zeile - Spielfeld.FIRSTLINE, spalte});
                     } else {
-                        System.out.println("Computer hat daneben geschossen.");
+                        logger.info("Computer hat daneben geschossen.");
                     }
                     break;
                 }
@@ -148,7 +152,7 @@ public class Controller {
         }
 
         // Spielfelder nach dem Zug anzeigen
-        System.out.println("\nDein Spielfeld nach dem Zug des Computers:");
+        logger.info("\nDein Spielfeld nach dem Zug des Computers:");
         UserInterface.print(spieler.getSpielfeld().zeige());
     }
 
@@ -162,10 +166,10 @@ public class Controller {
                 Boolean treffer = spieler.getSpielfeld().schiesse((char) (Spielfeld.FIRSTLINE + neueZeile), neueSpalte);
                 if (treffer != null) {
                     if (treffer) {
-                        System.out.println("Computer hat ein angrenzendes Feld getroffen!");
-                        trefferListe.add(new int[] {neueZeile, neueSpalte});
+                        logger.info("Computer hat ein angrenzendes Feld getroffen!");
+                        trefferListe.add(new int[]{neueZeile, neueSpalte});
                     } else {
-                        System.out.println("Computer hat ein angrenzendes Feld verfehlt.");
+                        logger.info("Computer hat ein angrenzendes Feld verfehlt.");
                     }
                     return true;
                 }
@@ -180,6 +184,6 @@ public class Controller {
         spieler = null;
         computer = null;
         trefferListe.clear();
-        System.out.println("Das Spiel wurde zurückgesetzt.");
+        logger.info("Das Spiel wurde zurückgesetzt.");
     }
 }
