@@ -94,7 +94,7 @@ public class Controller {
         return true; // Spiel läuft weiter
     }
 
-    private boolean isValidInput(String eingabe) {
+    boolean isValidInput(String eingabe) {
         if (eingabe.length() < 2) {
             return false;
         }
@@ -117,13 +117,13 @@ public class Controller {
     }
 
 
-    private void computerZug() {
+    void computerZug() {
         logger.info("\nDer Computer führt seinen Zug aus...");
         boolean schussErfolgreich = false;
 
         // Intelligentes Zielen, wenn Treffer vorhanden
         if (!trefferListe.isEmpty()) {
-            int[] letzterTreffer = trefferListe.get(0);
+            int[] letzterTreffer = trefferListe.getFirst();
             int zeile = letzterTreffer[0];
             int spalte = letzterTreffer[1];
 
@@ -185,4 +185,5 @@ public class Controller {
         trefferListe.clear();
         logger.info("Das Spiel wurde zurückgesetzt.");
     }
+
 }

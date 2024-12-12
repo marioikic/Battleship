@@ -47,12 +47,11 @@ public class Spieler {
         }
     }
 
-    private void zeigeSpielfeld() {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("\nAktuelles Spielfeld:");
-            logger.info(spielfeld.zeige());
-        }
+    public void zeigeSpielfeld() {
+        System.out.println("\nAktuelles Spielfeld:");
+        System.out.println(spielfeld.zeige());
     }
+
 
     private String erfasseEingabe(Scanner scanner, String schiffName) {
         logger.info(() -> String.format("Position für %s (z.B. A5H für horizontal oder A5V für vertikal):", schiffName));
@@ -96,4 +95,7 @@ public class Spieler {
     public String getName() {
         return name;
     }
+
+
+
 }

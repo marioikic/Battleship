@@ -25,6 +25,20 @@ public class Spielfeld {
     public boolean platziereSchiffBenutzer(char zeile, int spalte, int laenge, char richtung) {
         int x = zeile - FIRSTLINE;
 
+        // Prüfen, ob die Zeile und Spalte im gültigen Bereich liegen
+        if (zeile < FIRSTLINE || zeile >= FIRSTLINE + GROESSE) {
+            throw new IllegalArgumentException("Zeilenkoordinate außerhalb des gültigen Bereichs.");
+        }
+
+        if (spalte < 0 || spalte >= GROESSE) {
+            throw new IllegalArgumentException("Spaltennummer außerhalb des gültigen Bereichs.");
+        }
+
+        // Prüfen, ob die Ausrichtung gültig ist
+        if (richtung != HORIZONTAL && richtung != VERTIKAL) {
+            throw new IllegalArgumentException("Ungültige Ausrichtung. Nur H (horizontal) oder V (vertikal) erlaubt.");
+        }
+
         if (!isWithinBounds(x, spalte, laenge, richtung)) {
             return false;
         }
@@ -36,6 +50,7 @@ public class Spielfeld {
         placeShip(x, spalte, laenge, richtung);
         return true;
     }
+
 
     private boolean isWithinBounds(int x, int spalte, int laenge, char richtung) {
         if (x < 0 || x >= GROESSE || spalte < 0 || spalte >= GROESSE) {
@@ -111,16 +126,28 @@ public class Spielfeld {
 
     public String zeige() {
         StringBuilder sb = new StringBuilder();
-        sb.append("  1 2 3 4 5 6 7 8 9 10\n");
+
+        // Zeilenbeschriftung (Platz für die Spaltennummern)
+        sb.append("  ");
+        for (int i = 1; i <= GROESSE; i++) {
+            sb.append(i).append(" "); // Spaltennummer mit nur einem Leerzeichen
+        }
+        sb.append("\n");
+
+        // Spielfeld mit Zeilenbeschriftung und Feldern
         for (int i = 0; i < GROESSE; i++) {
-            sb.append((char) (FIRSTLINE + i)).append(" ");
+            sb.append((char) (FIRSTLINE + i)).append(" "); // Zeilenbeschriftung
             for (int j = 0; j < GROESSE; j++) {
-                sb.append(feld[i][j]).append(" ");
+                sb.append(feld[i][j]).append(" "); // Nur ein Leerzeichen zwischen den Feldern
             }
             sb.append("\n");
         }
         return sb.toString();
     }
+
+
+
+
 
     public String zeigeVerdeckt() {
         StringBuilder sb = new StringBuilder();
@@ -138,4 +165,18 @@ public class Spielfeld {
         }
         return sb.toString();
     }
+
+    public void zufaelligePlatzierungDerSchiffe() {
+        int[] schiffLaengen = {5, 4, 3, 3, 2}; // Beispielhafte Längen der Schiffe
+        for (int laenge : schiffLaengen) {
+            boolean platziert = false;
+            while (!platziert) {
+                char zeile = (char) (FIRSTLINE + (int) (Math.random() * GROESSE));
+                int spalte = (int) (Math.random() * GROESSE);
+                char richtung = Math.random() < 0.5 ? HORIZONTAL : VERTIKAL;
+                platziert = platziereSchiffBenutzer(zeile, spalte, laenge, richtung);
+            }
+        }
+    }
+
 }

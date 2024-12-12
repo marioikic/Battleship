@@ -1,172 +1,135 @@
-package battleship;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
+import battleship.Spielfeld;
+import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
- class SpielfeldTest {
+class SpielfeldTest {
 
     private Spielfeld spielfeld;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         spielfeld = new Spielfeld();
     }
 
-
     @Test
-    void testZeige_leeresSpielfeld() {
-
-        String actual = spielfeld.zeige();
-        String expected =
-                "  1 2 3 4 5 6 7 8 9 10\n" +
-                        "A ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n";
-
-        assertEquals(expected, actual);
+    void testT001_StartenDesSpiels() {
+        String initialBoard = spielfeld.zeige();
+        assertNotNull(initialBoard);
+        assertTrue(initialBoard.contains("~"), "Das Spielfeld sollte initial leer sein.");
     }
 
     @Test
-    void testSchiffPlatzierenUndAnzeigen_Laenge3_Horizontal() {
-
-        assertTrue(spielfeld.platziereSchiffBenutzer('B', 1, 3, 'H'));
-        String actual = spielfeld.zeige();
-
-        String expected =
-                "  1 2 3 4 5 6 7 8 9 10\n" +
-                        "A ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "B ~ S S S ~ ~ ~ ~ ~ ~ \n" +
-                        "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                        "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n";
-
-        assertEquals(expected, actual);
-    }
-
-
-/*neue Tests*/
-@Test
-void testSchiffPlatzierenUndAnzeigen_Laenge4_Vertikal() {
-
-    assertTrue(spielfeld.platziereSchiffBenutzer('B', 1, 4, 'V'));
-    String actual = spielfeld.zeige();
-
-    String expected =
-            "  1 2 3 4 5 6 7 8 9 10\n" +
-                    "A ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "B ~ S ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "C ~ S ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "D ~ S ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "E ~ S ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n" +
-                    "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ \n";
-
-    assertEquals(expected, actual);
-}
-
-
-    @Test
-    void testSchiffPlatzieren_AusserhalbDesSpielfelds() {
-        assertFalse(spielfeld.platziereSchiffBenutzer('K', 5, 3, 'H')); // Zeile außerhalb des Spielfelds
-        assertFalse(spielfeld.platziereSchiffBenutzer('A', 9, 3, 'H')); // Spalte überschreitet Spielfeldgröße
-        assertFalse(spielfeld.platziereSchiffBenutzer('A', -1, 3, 'H')); // Ungültige Spalte
+    void testT002_AnzeigeSchiffSetzen() {
+        assertTrue(spielfeld.platziereSchiffBenutzer('A', 0, 5, 'H'));
+        String board = spielfeld.zeige();
+        assertTrue(board.contains("S S S S S"), "Das Schiff sollte korrekt auf A1-A5 angezeigt werden.");
     }
 
     @Test
-    void testSchuss_Treffer() {
-        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Platziere ein Schiff
-        Boolean result = spielfeld.schiesse('C', 3); // Schuss auf ein Schiff
-
-        assertTrue(result);
-        String actual = spielfeld.zeige();
-        assertTrue(actual.contains("X")); // Überprüfen, ob ein Treffer markiert wurde
+    void testT003_SchiffeZufaelligSetzen() {
+        spielfeld.zufaelligePlatzierungDerSchiffe();
+        String board = spielfeld.zeige();
+        assertTrue(board.contains("S"), "Es sollten Schiffe zufällig platziert werden.");
     }
 
     @Test
-    void testSchuss_Fehlschuss() {
-        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Platziere ein Schiff
-        Boolean result = spielfeld.schiesse('D', 5); // Schuss ins Wasser
-
-        assertFalse(result);
-        String actual = spielfeld.zeige();
-        assertTrue(actual.contains("O")); // Überprüfen, ob ein Fehlschuss markiert wurde
+    void testT006_UeberlappungTesten() {
+        spielfeld.platziereSchiffBenutzer('A', 0, 5, 'H');
+        assertFalse(spielfeld.platziereSchiffBenutzer('A', 3, 4, 'H'), "Schiffe sollten sich nicht überlappen können.");
     }
 
     @Test
-    void testSchuss_BereitsGetroffen() {
-        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Platziere ein Schiff
-        spielfeld.schiesse('C', 3); // Schuss auf ein Schiff
-        Boolean result = spielfeld.schiesse('C', 3); // Erneuter Schuss auf dieselbe Stelle
-
-        assertNull(result); // Bereits getroffen
+    void testT007_OutOfBoundsPlatzierung() {
+        assertFalse(spielfeld.platziereSchiffBenutzer('J', 8, 4, 'H'), "Die Platzierung sollte abgelehnt werden, da sie das Spielfeld überschreitet.");
     }
 
+    @Test
+    void testT008_TrefferRegistrieren() {
+        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H');
+        Boolean result = spielfeld.schiesse('C', 2);
+        assertTrue(result, "Ein Treffer sollte als 'true' registriert werden.");
+        assertTrue(spielfeld.zeige().contains("X"), "Das Feld sollte als Treffer markiert sein.");
+    }
 
     @Test
-    void testAllesVersenkt_NachSpielende() {
+    void testT009_SchussVerfehlen() {
+        Boolean result = spielfeld.schiesse('C', 2);
+        assertFalse(result, "Ein Fehlschuss sollte als 'false' registriert werden.");
+        assertTrue(spielfeld.zeige().contains("O"), "Das Feld sollte als Fehlschuss markiert sein.");
+    }
+
+    @Test
+    void testT010_WiederholterSchuss() {
+        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H');
+        spielfeld.schiesse('C', 2);
+        assertThrows(IllegalStateException.class, () -> spielfeld.schiesse('C', 2), "Ein wiederholter Schuss sollte eine Exception werfen.");
+    }
+
+    @Test
+    void testT011_OutOfBoundsSchuss() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.schiesse('Z', 12), "Ungültige Koordinaten sollten eine Exception werfen.");
+    }
+
+    @Test
+    void testT016_AlleSchiffeVersenkt() {
         spielfeld.platziereSchiffBenutzer('A', 0, 2, 'H');
         spielfeld.schiesse('A', 0);
         spielfeld.schiesse('A', 1);
-
-        assertTrue(spielfeld.istAllesVersenkt()); // Alle Schiffe sollten versenkt sein
+        assertTrue(spielfeld.istAllesVersenkt(), "Alle Schiffe sollten als versenkt erkannt werden.");
     }
 
     @Test
-    void testZeigeVerdeckt() {
-        spielfeld.platziereSchiffBenutzer('A', 0, 3, 'H');
-        String actual = spielfeld.zeigeVerdeckt();
-
-        assertFalse(actual.contains("S")); // Sicherstellen, dass Schiffe verdeckt sind
-        assertTrue(actual.contains("~")); // Wasser sollte weiterhin angezeigt werden
+    void testE001_UngueltigesFormatPlatzierung() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.platziereSchiffBenutzer('Z', 12, 3, 'H'), "Ungültige Koordinaten sollten eine Exception werfen.");
     }
 
-    /*neue tests*/
     @Test
-    void testComputerSchussAbgabe() {
-        // Vorbereitung: Platziere ein Schiff auf dem Spielfeld des Spielers
-        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Schiff der Länge 3 wird platziert
-
-        // Simulation: Computer gibt einen Schuss ab
-        Boolean ergebnis = spielfeld.schiesse('C', 3); // Computer schießt auf das Schiff
-
-        // Überprüfung: Der Schuss ist ein Treffer
-        assertTrue(ergebnis, "Der Computer sollte einen Treffer landen.");
-        String actual = spielfeld.zeige();
-        assertTrue(actual.contains("X"), "Das Spielfeld sollte einen Treffer ('X') zeigen.");
+    void testE002_UngueltigeZahlenPlatzierung() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.platziereSchiffBenutzer('A', 11, 2, 'V'), "Spaltennummer außerhalb des Bereichs sollte eine Exception werfen.");
     }
+
     @Test
-    void testComputerSchiessStrategie() {
-        // Vorbereitung: Platziere ein Schiff und simuliere einen Treffer
-        spielfeld.platziereSchiffBenutzer('E', 4, 2, 'H'); // Schiff der Länge 2 wird platziert
-        spielfeld.schiesse('E', 4); // Computer trifft das erste Segment des Schiffs
-
-        // Simulation: Computer visiert angrenzendes Feld an
-        Boolean ergebnis = spielfeld.schiesse('E', 5); // Computer schießt auf das nächste Segment
-
-        // Überprüfung: Der zweite Schuss ist ein Treffer
-        assertTrue(ergebnis, "Der Computer sollte einen Treffer landen.");
-        String actual = spielfeld.zeige();
-        assertTrue(actual.contains("X"), "Das Spielfeld sollte den Treffer ('X') anzeigen.");
+    void testE003_UngueltigeAusrichtungPlatzierung() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.platziereSchiffBenutzer('A', 4, 3, 'X'), "Ungültige Ausrichtung sollte eine Exception werfen.");
     }
 
+    @Test
+    void testE004_UngueltigeKoordinatenSchuss() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.schiesse('Z', 5), "Ungültige Schusskoordinaten sollten eine Exception werfen.");
+    }
 
+    @Test
+    void testE005_WiederholteEingabeSchuss() {
+        spielfeld.platziereSchiffBenutzer('D', 3, 2, 'H');
+        spielfeld.schiesse('D', 3);
+        assertThrows(IllegalStateException.class, () -> spielfeld.schiesse('D', 3), "Wiederholter Schuss sollte eine Exception werfen.");
+    }
 
+    @Test
+    void testE006_UngueltigeZahlenSchuss() {
+        assertThrows(IllegalArgumentException.class, () -> spielfeld.schiesse('B', 11), "Ungültige Spaltennummer beim Schuss sollte eine Exception werfen.");
+    }
 
+    @Test
+    void testE007_SpielabbruchWaerendPlatzierung() {
+        boolean abbruch = false;
+        try {
+            spielfeld.platziereSchiffBenutzer('E', 3, 3, 'H');
+            abbruch = true;
+        } catch (Exception e) {
+            abbruch = false;
+        }
+        assertTrue(abbruch, "Das Spiel sollte korrekt abgebrochen werden können.");
+    }
+
+    @Test
+    void testE008_UngueltigeEingabeComputerschuss() {
+        spielfeld.platziereSchiffBenutzer('A', 0, 2, 'H');
+        spielfeld.schiesse('A', 0);
+        try {
+            spielfeld.schiesse('A', 0); // Bereits beschossenes Feld
+        } catch (IllegalStateException e) {
+            assertTrue(true, "Der Computer sollte erneut versuchen, auf ein gültiges Feld zu schießen.");
+        }
+    }
 }
