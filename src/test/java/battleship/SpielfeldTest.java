@@ -132,4 +132,18 @@ class SpielfeldTest {
             assertTrue(true, "Der Computer sollte erneut versuchen, auf ein gültiges Feld zu schießen.");
         }
     }
+
+    @Test
+    void testSchiffVersenkt() {
+        spielfeld.platziereSchiffBenutzer('C', 2, 3, 'H'); // Platziere ein Schiff (3 Felder horizontal)
+
+        // Schieße auf alle Felder des Schiffs
+        spielfeld.schiesse('C', 2);
+        spielfeld.schiesse('C', 3);
+        Boolean result = spielfeld.schiesse('C', 4); // Letzter Treffer
+
+        assertTrue(result); // Letzter Treffer
+        assertTrue(spielfeld.istSchiffVersenkt('C', 2)); // Überprüfen, ob das Schiff versenkt wurde
+    }
+
 }

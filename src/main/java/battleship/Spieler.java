@@ -18,15 +18,18 @@ public class Spieler {
         this.name = name;
         this.spielfeld = new Spielfeld();
     }
+
     public void benutzerPlatziertSchiffe() {
         Scanner scanner = new Scanner(System.in);
-        logger.info("Platzieren Sie Ihre Schiffe:");
 
         for (int i = 0; i < schiffe.length; i++) {
             boolean platziert = false;
+
             while (!platziert) {
+                // Zeige das Spielfeld zuerst
                 zeigeSpielfeld();
 
+                // Zeige die Eingabeaufforderung unter dem Spielfeld
                 String eingabe = erfasseEingabe(scanner, schiffe[i]);
 
                 if (!validiereEingabe(eingabe)) {
@@ -37,6 +40,7 @@ public class Spieler {
                 try {
                     if (platziereSchiff(eingabe, laengen[i])) {
                         platziert = true;
+                        logger.info("Schiff erfolgreich platziert.");
                     } else {
                         logger.warning("Ungültige Platzierung. Bitte erneut versuchen.");
                     }
@@ -52,14 +56,14 @@ public class Spieler {
         System.out.println(spielfeld.zeige());
     }
 
-
     private String erfasseEingabe(Scanner scanner, String schiffName) {
-        logger.info(() -> String.format("Position für %s (z.B. A5H für horizontal oder A5V für vertikal):", schiffName));
+        System.out.println(String.format("Position für %s (z.B. A5H für horizontal oder A5V für vertikal):", schiffName));
         return scanner.nextLine().toUpperCase();
     }
 
     private boolean validiereEingabe(String eingabe) {
         return eingabe.length() >= 3 &&
+                Character.isLetter(eingabe.charAt(0)) &&
                 Character.isDigit(eingabe.charAt(1)) &&
                 (eingabe.charAt(eingabe.length() - 1) == Spielfeld.HORIZONTAL ||
                         eingabe.charAt(eingabe.length() - 1) == Spielfeld.VERTIKAL);
@@ -72,9 +76,6 @@ public class Spieler {
 
         return spielfeld.platziereSchiffBenutzer(zeile, spalte, laenge, richtung);
     }
-
-
-
 
     public void zufaelligePlatzierungDerSchiffe() {
         for (int j : laengen) {
@@ -95,7 +96,4 @@ public class Spieler {
     public String getName() {
         return name;
     }
-
-
-
 }

@@ -79,7 +79,8 @@ public class Controller {
 
             Boolean treffer = computer.getSpielfeld().schiesse(zeile, spalte);
             if (treffer == null) {
-                logger.warning("Dieses Feld wurde bereits getroffen. Bitte erneut versuchen.");
+                // Feld wurde bereits getroffen, Benutzer muss erneut eingeben
+                continue;
             } else if (treffer) {
                 logger.info("Treffer!");
                 break;
@@ -123,7 +124,7 @@ public class Controller {
 
         // Intelligentes Zielen, wenn Treffer vorhanden
         if (!trefferListe.isEmpty()) {
-            int[] letzterTreffer = trefferListe.getFirst();
+            int[] letzterTreffer = trefferListe.get(0);
             int zeile = letzterTreffer[0];
             int spalte = letzterTreffer[1];
 
@@ -136,6 +137,11 @@ public class Controller {
             while (true) {
                 char zeile = (char) (Spielfeld.FIRSTLINE + (int) (Math.random() * Spielfeld.GROESSE));
                 int spalte = (int) (Math.random() * Spielfeld.GROESSE);
+
+                // Überprüfen, ob das Feld bereits getroffen wurde
+                if (spieler.getSpielfeld().istFeldBereitsGetroffen(zeile, spalte)) {
+                    continue; // Wiederhole, bis ein gültiges Feld gefunden wird
+                }
 
                 Boolean treffer = spieler.getSpielfeld().schiesse(zeile, spalte);
                 if (treffer != null) {
@@ -151,8 +157,8 @@ public class Controller {
         }
 
         // Spielfelder nach dem Zug anzeigen
-        logger.info("\nDein Spielfeld nach dem Zug des Computers:");
-        UserInterface.print(spieler.getSpielfeld().zeige());
+        //logger.info("\nDein Spielfeld nach dem Zug des Computers:");
+       // UserInterface.print(spieler.getSpielfeld().zeige());
     }
 
     private boolean computerVisiereAngrenzendeFelderAn(int zeile, int spalte) {
@@ -160,8 +166,11 @@ public class Controller {
         for (int[] richtung : richtungen) {
             int neueZeile = zeile + richtung[0];
             int neueSpalte = spalte + richtung[1];
+
             if (neueZeile >= 0 && neueZeile < Spielfeld.GROESSE &&
-                    neueSpalte >= 0 && neueSpalte < Spielfeld.GROESSE) {
+                    neueSpalte >= 0 && neueSpalte < Spielfeld.GROESSE &&
+                    !spieler.getSpielfeld().istFeldBereitsGetroffen((char) (Spielfeld.FIRSTLINE + neueZeile), neueSpalte)) {
+
                 Boolean treffer = spieler.getSpielfeld().schiesse((char) (Spielfeld.FIRSTLINE + neueZeile), neueSpalte);
                 if (treffer != null) {
                     if (treffer) {
@@ -170,10 +179,11 @@ public class Controller {
                     } else {
                         logger.info("Computer hat ein angrenzendes Feld verfehlt.");
                     }
-                    return true;
+                    return true; // Zug erfolgreich
                 }
             }
         }
+
         // Schiff versenkt, Trefferliste leeren
         trefferListe.clear();
         return false;

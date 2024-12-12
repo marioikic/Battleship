@@ -1,7 +1,8 @@
 package battleship;
 
 import battleship.Controller; // Import für Controller
-import battleship.LoggerConfig; // Import für LoggerConfig
+import battleship.LoggerConfig;
+
 
 public class MCP {
     public static void main(String[] args) {

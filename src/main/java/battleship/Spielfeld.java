@@ -95,12 +95,18 @@ public class Spielfeld {
 
         // Überprüfen auf bereits getroffenes Feld
         if (feld[x][spalte] == TREFFER || feld[x][spalte] == FEHLSCHUSS) {
-            throw new IllegalStateException("Das Feld wurde bereits getroffen: (" + zeile + ", " + spalte + ")");
+            System.out.println("Dieses Feld wurde bereits getroffen: (" + zeile + ", " + spalte + "). Versuchen Sie es erneut.");
+            return null; // Ungültiger Zug
         }
 
         // Treffer oder Fehlschuss markieren
         if (feld[x][spalte] == SCHIFF) {
             feld[x][spalte] = TREFFER; // Treffer markieren
+
+            // Überprüfen, ob das Schiff vollständig versenkt wurde
+            if (istSchiffVersenkt(zeile, spalte)) {
+                System.out.println("Schiff versenkt!");
+            }
             return true;
         } else if (feld[x][spalte] == WASSER) {
             feld[x][spalte] = FEHLSCHUSS; // Fehlschuss markieren
@@ -110,8 +116,6 @@ public class Spielfeld {
         // Sollte nie erreicht werden
         throw new IllegalStateException("Unerwarteter Zustand bei der Schussverarbeitung.");
     }
-
-
 
     public boolean istAllesVersenkt() {
         for (int i = 0; i < GROESSE; i++) {
@@ -178,5 +182,72 @@ public class Spielfeld {
             }
         }
     }
+
+    public boolean istFeldBereitsGetroffen(char zeile, int spalte) {
+        int x = zeile - FIRSTLINE;
+
+        if (feld[x][spalte] == TREFFER || feld[x][spalte] == FEHLSCHUSS) {
+            return true; // Feld ist bereits getroffen
+        }
+        return false; // Feld ist noch nicht getroffen
+    }
+
+    public boolean istSchiffVersenkt(char zeile, int spalte) {
+        int x = zeile - FIRSTLINE;
+        int y = spalte;
+
+        // Überprüfen, ob das aktuelle Feld ein Teil eines Schiffs ist
+        if (feld[x][y] != TREFFER) {
+            return false;
+        }
+
+        // Finde die Richtung des Schiffs (horizontal oder vertikal)
+        boolean horizontal = false;
+        boolean vertikal = false;
+
+        // Überprüfe angrenzende Felder, um die Richtung zu bestimmen
+        if (y > 0 && (feld[x][y - 1] == TREFFER || feld[x][y - 1] == SCHIFF)) {
+            horizontal = true;
+        } else if (y < GROESSE - 1 && (feld[x][y + 1] == TREFFER || feld[x][y + 1] == SCHIFF)) {
+            horizontal = true;
+        } else if (x > 0 && (feld[x - 1][y] == TREFFER || feld[x - 1][y] == SCHIFF)) {
+            vertikal = true;
+        } else if (x < GROESSE - 1 && (feld[x + 1][y] == TREFFER || feld[x + 1][y] == SCHIFF)) {
+            vertikal = true;
+        }
+
+        // Überprüfe alle Felder entlang der Richtung
+        if (horizontal) {
+            // Überprüfe links
+            for (int j = y; j >= 0 && feld[x][j] != WASSER; j--) {
+                if (feld[x][j] == SCHIFF) {
+                    return false; // Noch nicht getroffen
+                }
+            }
+            // Überprüfe rechts
+            for (int j = y; j < GROESSE && feld[x][j] != WASSER; j++) {
+                if (feld[x][j] == SCHIFF) {
+                    return false; // Noch nicht getroffen
+                }
+            }
+        } else if (vertikal) {
+            // Überprüfe oben
+            for (int i = x; i >= 0 && feld[i][y] != WASSER; i--) {
+                if (feld[i][y] == SCHIFF) {
+                    return false; // Noch nicht getroffen
+                }
+            }
+            // Überprüfe unten
+            for (int i = x; i < GROESSE && feld[i][y] != WASSER; i++) {
+                if (feld[i][y] == SCHIFF) {
+                    return false; // Noch nicht getroffen
+                }
+            }
+        }
+
+        // Das gesamte Schiff ist getroffen
+        return true;
+    }
+
 
 }
