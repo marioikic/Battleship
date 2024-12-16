@@ -20,11 +20,7 @@ public class Controller {
         spieler = new Spieler("Spieler");
         computer = new Spieler("Computer");
     }
-
-    public Controller(String player1, String player2) {
-        spieler = new Spieler(player1);
-        computer = new Spieler(player2);
-    }
+    
 
     public void run() {
         spieler.benutzerPlatziertSchiffe();
